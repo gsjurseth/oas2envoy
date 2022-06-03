@@ -24,11 +24,15 @@ let specFile = fs.readFileSync(opts.oas, 'utf8');
 let spec     = YAML.parse(specFile);
 let paths    = spec.paths;
 
+/*  Example route object
+ * [{"match":{"prefix":"foostr","headers":[{"name":":method","exact_match":"VERB"}]}}]
+ */
 let routes = Object.getOwnPropertyNames(paths).map( i => {
-  let methods = Object.getOwnPropertyNames(paths[i]);
-  return { "path": i, methods };
+  let methods = Object.getOwnPropertyNames(paths[i]).map( h => {
+    return { "name": ":method", "exact_match": h };
+  });
+  return {"match": { "prefix": i, "headers": methods }};
 });
 
 
-console.log("%j", routes);
-console.log("%j", matchTpl);
+console.log(YAML.stringify({ routes }));
