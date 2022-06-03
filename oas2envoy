@@ -12,14 +12,6 @@ program
 program.parse(process.argv);
 const opts = program.opts();
 
-const matchTpl = YAML.parse(`
-              - match:
-                  prefix: foostr
-                  headers:
-                    - name: ":method"
-                      exact_match: VERB
-`); 
-
 let specFile = fs.readFileSync(opts.oas, 'utf8');
 let spec     = YAML.parse(specFile);
 let paths    = spec.paths;
@@ -29,7 +21,7 @@ let paths    = spec.paths;
  */
 let routes = Object.getOwnPropertyNames(paths).map( i => {
   let methods = Object.getOwnPropertyNames(paths[i]).map( h => {
-    return { "name": ":method", "exact_match": h };
+    return { "name": ":method", "exact_match": `${h.toUpperCase()}` };
   });
   return {"match": { "prefix": i, "headers": methods }};
 });
