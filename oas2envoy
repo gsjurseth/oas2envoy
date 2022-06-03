@@ -1,0 +1,34 @@
+#!/usr/bin/env node
+
+const YAML     = require('yaml'),
+      fs       = require('fs');
+      program  = require('commander');
+program.version('1.0');
+
+program
+  .requiredOption('-o, --oas <path-to-openapispec>', 'OASv3 spec doc to import')
+  .option('-d, --debug', 'turn on more debug info');
+
+program.parse(process.argv);
+const opts = program.opts();
+
+const matchTpl = YAML.parse(`
+              - match:
+                  prefix: foostr
+                  headers:
+                    - name: ":method"
+                      exact_match: VERB
+`); 
+
+let specFile = fs.readFileSync(opts.oas, 'utf8');
+let spec     = YAML.parse(specFile);
+let paths    = spec.paths;
+
+let routes = Object.getOwnPropertyNames(paths).map( i => {
+  let methods = Object.getOwnPropertyNames(paths[i]);
+  return { "path": i, methods };
+});
+
+
+console.log("%j", routes);
+console.log("%j", matchTpl);
